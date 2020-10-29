@@ -1,22 +1,29 @@
 ﻿@inject HttpClient client
 
 <div class="shadow p-3 mb-3 rounded">
+    <div class="row justify-content-end">
+        <span class="oi oi-trash" @onclick="DeleteTodoItem"></span>
+    </div>
+    <div class="row px-3">
+        <h4>@TodoItem.Title</h4>
+    </div>
     <div class="row">
-        <div class="col">
-            <h4>@TodoItem.Title</h4>
+        <div class="col-lg-5">
             <p @onclick="ToggleDisplayTaskStatusInput" class="@taskStatusCss">@TodoItem.Status</p>
-            <select class="form-control @taskStatusInputCss">
-                <option>@TodoItem.Status</option>
-                <option>Doing</option>
-                <option>Done</option>
-                <option>New</option>
-            </select>
-        </div>
-        <div class="col">
-            <span class="oi oi-trash float-right" @onclick="DeleteTodoItem"></span>
+                <div class="input-group @taskStatusInputCss">
+                    <select class="form-control" @bind="TodoItem.Status">
+                        <option>@TodoItem.Status</option>
+                        <option>Doing</option>
+                        <option>Done</option>
+                        <option>New</option>
+                    </select>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" @onclick="UpdateTaskStatus">Update</button>
+                    </div>
+                </div>
         </div>
     </div>
-    <div class="row p-3">
+    <div class="row px-3">
         <span class="@DescriptionCss" @onclick="ToggleDisplayDescriptionInput">@TodoItem.Description</span>
         <input type="text" class="form-control @inputDescriptionCss" placeholder="Click here to add a description" @bind-value="newTodoDescription" @onfocusout="AddDescription" />
     </div>
@@ -32,18 +39,24 @@
 
     private string newTodoDescription;
 
+    #region CSS Properties
+
     private bool displayDescriptionInput = false;
     private string inputDescriptionCss => displayDescriptionInput ? null : "d-none";
     private string DescriptionCss => displayDescriptionInput ? "d-none" : null;
 
     private bool displayTaskStatusInput = false;
     private string taskStatusInputCss => displayTaskStatusInput ? null : "d-none";
-    private string taskStatusCss => displayDescriptionInput ? "d-none" : null;
+    private string taskStatusCss => displayTaskStatusInput ? "d-none" : null;
 
     protected async void OnIntilizedAsync()
     {
         await base.OnInitializedAsync();
     }
+
+    #endregion
+
+    #region Methods
 
     public void ToggleDisplayDescriptionInput() => displayDescriptionInput = !displayDescriptionInput;
     public void ToggleDisplayTaskStatusInput() => displayTaskStatusInput = !displayTaskStatusInput;
@@ -53,11 +66,22 @@
         if (!string.IsNullOrWhiteSpace(newTodoDescription))
         {
             TodoItem.Description = newTodoDescription;
-            await client.PutAsJsonAsync("api/todoItem", TodoItem);
+            await UpdateTodoItem();
             newTodoDescription = string.Empty;
             await UpdateTodoItemList.InvokeAsync(null);
         }
         ToggleDisplayDescriptionInput();
+    }
+
+    public async Task UpdateTaskStatus()
+    {
+        ToggleDisplayTaskStatusInput();
+        await UpdateTodoItem();
+    }
+
+    public async Task UpdateTodoItem()
+    {
+        await client.PutAsJsonAsync("api/todoItem", TodoItem);
     }
 
     public async Task DeleteTodoItem()
@@ -65,5 +89,7 @@
         await client.PostAsJsonAsync("api/todoItem/delete", TodoItem);
         await UpdateTodoItemList.InvokeAsync(null);
     }
+
+    #endregion
 
 }
