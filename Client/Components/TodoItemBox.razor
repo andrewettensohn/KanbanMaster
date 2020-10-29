@@ -1,0 +1,37 @@
+﻿<div class="shadow p-3 mb-3 rounded">
+    <h4>@TodoItem.Title</h4>
+    <span @onclick="ToggleDisplayDescriptionInput">@TodoItem.Description</span>
+    <input type="text" class="form-control @inputDescriptionCss" placeholder="Enter a description" @bind-value="newTodoDescription" @onfocusout="AddDescription" />
+</div>
+
+@code {
+
+    [Parameter]
+    public TodoItem TodoItem { get; set; }
+
+    private string newTodoDescription;
+
+    private bool displayDescriptionInput = false;
+    private string inputDescriptionCss => displayDescriptionInput ? null : "d-none";
+
+    protected async void OnIntilizedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    public void ToggleDisplayDescriptionInput()
+    {
+        displayDescriptionInput = !displayDescriptionInput;
+    }
+
+    public void AddDescription()
+    {
+        if (!string.IsNullOrWhiteSpace(newTodoDescription))
+        {
+            TodoItem.Description = newTodoDescription;
+            newTodoDescription = string.Empty;
+        }
+        ToggleDisplayDescriptionInput();
+    }
+
+}

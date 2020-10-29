@@ -1,0 +1,33 @@
+﻿@page "/"
+
+<h1>Todo List</h1>
+
+<div class="row">
+    <div class="col-lg">
+        <input type="text" class="form-control mb-3" placeholder="Enter a new todo item" @bind-value="NewTodoTitleInput" @onfocusout="AddTodoItem" />
+    </div>
+    <div class="col-lg">
+        @foreach(TodoItem todoItem in TodoItems)
+        {
+            <TodoItemBox TodoItem="todoItem" />
+        }
+    </div>
+</div>
+
+@code{
+
+    List<TodoItem> TodoItems = new List<TodoItem>();
+    string NewTodoTitleInput;
+    string NewTodoDescription;
+
+    public void AddTodoItem()
+    {
+        if(!string.IsNullOrWhiteSpace(NewTodoTitleInput))
+        {
+            TodoItems.Add(new TodoItem { Title = NewTodoTitleInput, Description = "Click here to add a descripton!" });
+            NewTodoTitleInput = string.Empty;
+        }
+    }
+
+
+}
