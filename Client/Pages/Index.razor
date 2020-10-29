@@ -42,7 +42,7 @@
     {
         if (!string.IsNullOrWhiteSpace(NewTodoTitleInput))
         {
-            await client.PostAsJsonAsync("api/todoItem", new TodoItem { Title = NewTodoTitleInput, Description = "Click here to add a descripton!" });
+            await client.PostAsJsonAsync("api/todoItem", new TodoItem { Title = NewTodoTitleInput, Description = "Click here to add a descripton!", Status = "New" });
             await GetTodoItems();
             NewTodoTitleInput = string.Empty;
         }

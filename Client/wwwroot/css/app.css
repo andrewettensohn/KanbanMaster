@@ -42,6 +42,18 @@ app {
     align-items: center;
 }
 
+a {
+    color: white
+}
+
+input {
+    background-color: #212121 !important;
+}
+
+select {
+    background-color: #212121 !important;
+}
+
 /*Dark Theme*/
 .main {
     flex: 1;
