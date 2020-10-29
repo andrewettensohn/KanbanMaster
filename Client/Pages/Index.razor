@@ -1,4 +1,6 @@
 ﻿@page "/"
+@attribute [Authorize]
+@inject HttpClient client
 
 <h1>Todo List</h1>
 
@@ -7,7 +9,7 @@
         <input type="text" class="form-control mb-3" placeholder="Enter a new todo item" @bind-value="NewTodoTitleInput" @onfocusout="AddTodoItem" />
     </div>
     <div class="col-lg">
-        @foreach(TodoItem todoItem in TodoItems)
+        @foreach (TodoItem todoItem in TodoItems)
         {
             <TodoItemBox TodoItem="todoItem" />
         }
@@ -20,11 +22,27 @@
     string NewTodoTitleInput;
     string NewTodoDescription;
 
-    public void AddTodoItem()
+    protected async override Task OnInitializedAsync()
     {
-        if(!string.IsNullOrWhiteSpace(NewTodoTitleInput))
+        await GetTodoItems();
+        await base.OnInitializedAsync();
+    }
+
+    public async Task GetTodoItems()
+    {
+        HttpResponseMessage response = await client.GetAsync("api/todoItem/list");
+        if (response.IsSuccessStatusCode)
         {
-            TodoItems.Add(new TodoItem { Title = NewTodoTitleInput, Description = "Click here to add a descripton!" });
+            TodoItems = JsonConvert.DeserializeObject<List<TodoItem>>(response.Content.ReadAsStringAsync().Result);
+        }
+    }
+
+    public async Task AddTodoItem()
+    {
+        if (!string.IsNullOrWhiteSpace(NewTodoTitleInput))
+        {
+            await client.PostAsJsonAsync("api/todoItem", new TodoItem { Title = NewTodoTitleInput, Description = "Click here to add a descripton!" });
+            await GetTodoItems();
             NewTodoTitleInput = string.Empty;
         }
     }

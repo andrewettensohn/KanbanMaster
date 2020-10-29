@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using KanbanMaster.Shared.Models;
 
 namespace KanbanMaster.Server.Data
 {
@@ -17,5 +18,7 @@ namespace KanbanMaster.Server.Data
             IOptions<OperationalStoreOptions> operationalStoreOptions) : base(options, operationalStoreOptions)
         {
         }
+
+        public DbSet<TodoItem> TodoItems { get; set; }
     }
 }
