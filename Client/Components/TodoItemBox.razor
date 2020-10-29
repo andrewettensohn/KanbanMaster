@@ -1,13 +1,27 @@
-﻿<div class="shadow p-3 mb-3 rounded">
-    <h4>@TodoItem.Title</h4>
-    <span @onclick="ToggleDisplayDescriptionInput">@TodoItem.Description</span>
-    <input type="text" class="form-control @inputDescriptionCss" placeholder="Enter a description" @bind-value="newTodoDescription" @onfocusout="AddDescription" />
+﻿@inject HttpClient client
+
+<div class="shadow p-3 mb-3 rounded">
+    <div class="row">
+        <div class="col">
+            <h4>@TodoItem.Title</h4>
+        </div>
+        <div class="col">
+            <span class="oi oi-trash float-right" @onclick="DeleteTodoItem"></span>
+        </div>
+    </div>
+    <div class="row p-3">
+        <span @onclick="ToggleDisplayDescriptionInput">@TodoItem.Description</span>
+        <input type="text" class="form-control @inputDescriptionCss" placeholder="Enter a description" @bind-value="newTodoDescription" @onfocusout="AddDescription" />
+    </div>
 </div>
 
 @code {
 
     [Parameter]
     public TodoItem TodoItem { get; set; }
+
+    [Parameter]
+    public EventCallback UpdateTodoItemList { get; set; }
 
     private string newTodoDescription;
 
@@ -24,14 +38,22 @@
         displayDescriptionInput = !displayDescriptionInput;
     }
 
-    public void AddDescription()
+    public async Task AddDescription()
     {
         if (!string.IsNullOrWhiteSpace(newTodoDescription))
         {
             TodoItem.Description = newTodoDescription;
+            await client.PutAsJsonAsync("api/todoItem", TodoItem);
             newTodoDescription = string.Empty;
+            await UpdateTodoItemList.InvokeAsync(null);
         }
         ToggleDisplayDescriptionInput();
+    }
+
+    public async Task DeleteTodoItem()
+    {
+        await client.PostAsJsonAsync("api/todoItem/delete", TodoItem);
+        await UpdateTodoItemList.InvokeAsync(null);
     }
 
 }

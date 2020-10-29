@@ -2,8 +2,9 @@
 @attribute [Authorize]
 @inject HttpClient client
 
-<h1>Todo List</h1>
-
+<div class="row">
+    <h6 class="display-4">Todo List</h6>
+</div>
 <div class="row">
     <div class="col-lg">
         <input type="text" class="form-control mb-3" placeholder="Enter a new todo item" @bind-value="NewTodoTitleInput" @onfocusout="AddTodoItem" />
@@ -11,7 +12,7 @@
     <div class="col-lg">
         @foreach (TodoItem todoItem in TodoItems)
         {
-            <TodoItemBox TodoItem="todoItem" />
+            <TodoItemBox TodoItem="todoItem" UpdateTodoItemList="GetTodoItems" />
         }
     </div>
 </div>
@@ -46,6 +47,7 @@
             NewTodoTitleInput = string.Empty;
         }
     }
+
 
 
 }

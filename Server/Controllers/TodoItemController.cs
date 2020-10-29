@@ -7,6 +7,7 @@ using KanbanMaster.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace KanbanMaster.Server.Controllers
 {
@@ -38,9 +39,21 @@ namespace KanbanMaster.Server.Controllers
         [HttpGet("list")]
         public async Task<List<TodoItem>> ListTodoItems()
         {
-            return _context.TodoItems.ToList();
+            return await _context.TodoItems.ToListAsync();
+        }
 
-            //return new List<TodoItem> { new TodoItem { Title = "Op Success!", Description = "We can call the API." } };
+        [HttpPut]
+        public async Task UpdateTodoItem(TodoItem todoItem)
+        {
+            _context.Entry(todoItem).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+        }
+
+        [HttpPost("delete")]
+        public async Task DeleteTodoItem(TodoItem todoItem)
+        {
+            _context.Remove(todoItem);
+            await _context.SaveChangesAsync();
         }
     }
 }
