@@ -13,7 +13,7 @@
             <p @onclick="ToggleDisplayTaskStatusInput" class="@taskStatusCss">@TodoItem.Status</p>
                 <div class="input-group @taskStatusInputCss">
                     <select class="form-control" @bind="TodoItem.Status">
-                        @foreach (string option in TaskStatusOptions)
+                        @foreach (string option in TaskStatusOptions.List)
                         {
                             <option>@option</option>
                         }
@@ -38,7 +38,6 @@
     [Parameter]
     public EventCallback UpdateTodoItemList { get; set; }
 
-    private List<string> TaskStatusOptions = new List<string> { "New", "Doing", "Done" };
     private string newTodoDescription;
 
     #region CSS Properties and Methods

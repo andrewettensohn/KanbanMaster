@@ -11,10 +11,26 @@
     </div>
 </div>
 <div class="d-lg-none d-xl-none">
-    @foreach (TodoItem todoItem in TodoItems)
-    {
-        <TodoItemBox TodoItem="todoItem" UpdateTodoItemList="GetTodoItems" />
-    }
+    <div class="col">
+        <div class="row">
+            <div class="input-group mb-3">
+                <select class="form-control" @bind="SelectedTaskStatusFilter">
+                    @foreach (string option in TaskStatusOptions.List)
+                    {
+                        <option>@option</option>
+                    }
+                    <option>None</option>
+                </select>
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" @onclick="FilterByTaskStatus">Filter</button>
+                </div>
+            </div>
+        </div>
+        @foreach (TodoItem todoItem in TodoItems)
+        {
+            <TodoItemBox TodoItem="todoItem" UpdateTodoItemList="GetTodoItems" />
+        }
+    </div>
 </div>
 <div class="d-none d-lg-block d-xl-block">
     <div class="row">
@@ -44,9 +60,10 @@
 
 @code{
 
-    List<TodoItem> TodoItems = new List<TodoItem>();
-    string NewTodoTitleInput;
-    string NewTodoDescription;
+    private List<TodoItem> TodoItems = new List<TodoItem>();
+    private string NewTodoTitleInput;
+    private string NewTodoDescription;
+    private string SelectedTaskStatusFilter;
 
     protected async override Task OnInitializedAsync()
     {
@@ -70,6 +87,15 @@
             await client.PostAsJsonAsync("api/todoItem", new TodoItem { Title = NewTodoTitleInput, Description = "Click here to add a descripton!", Status = "New" });
             await GetTodoItems();
             NewTodoTitleInput = string.Empty;
+        }
+    }
+
+    public async Task FilterByTaskStatus()
+    {
+        await GetTodoItems();
+        if(SelectedTaskStatusFilter != "None")
+        {
+            TodoItems = TodoItems.Where(x => x.Status == SelectedTaskStatusFilter).ToList();
         }
     }
 }
