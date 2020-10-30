@@ -13,13 +13,9 @@
             <p @onclick="ToggleDisplayTaskStatusInput" class="@taskStatusCss">@TodoItem.Status</p>
                 <div class="input-group @taskStatusInputCss">
                     <select class="form-control" @bind="TodoItem.Status">
-                        <option>@TodoItem.Status</option>
                         @foreach (string option in TaskStatusOptions)
                         {
-                            if (option != TodoItem.Status)
-                            {
-                                <option>@option</option>
-                            }
+                            <option>@option</option>
                         }
                     </select>
                     <div class="input-group-append">
@@ -74,7 +70,6 @@
             TodoItem.Description = newTodoDescription;
             await UpdateTodoItem();
             newTodoDescription = string.Empty;
-            await UpdateTodoItemList.InvokeAsync(null);
         }
         ToggleDisplayDescriptionInput();
     }
@@ -83,6 +78,7 @@
     {
         ToggleDisplayTaskStatusInput();
         await UpdateTodoItem();
+        await UpdateTodoItemList.InvokeAsync(null);
     }
 
     public async Task UpdateTitle()

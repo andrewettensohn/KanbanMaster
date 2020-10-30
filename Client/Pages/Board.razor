@@ -1,0 +1,75 @@
+﻿@page "/board"
+@attribute [Authorize]
+@inject HttpClient client
+
+<div class="row">
+    <p class="display-4">Board</p>
+</div>
+<div class="row">
+    <div class="col-lg-4">
+        <input type="text" class="form-control mb-3" placeholder="Enter a new todo item" @bind-value="NewTodoTitleInput" @onfocusout="AddTodoItem" />
+    </div>
+</div>
+<div class="d-lg-none d-xl-none">
+    @foreach (TodoItem todoItem in TodoItems)
+    {
+        <TodoItemBox TodoItem="todoItem" UpdateTodoItemList="GetTodoItems" />
+    }
+</div>
+<div class="d-none d-lg-block d-xl-block">
+    <div class="row">
+        <div class="col">
+            <p>New</p>
+            @foreach(TodoItem todoItem in TodoItems.Where(x => x.Status == "New"))
+            {
+                <TodoItemBox TodoItem="todoItem" UpdateTodoItemList="GetTodoItems" />
+            }
+        </div>
+        <div class="col">
+            <p>Doing</p>
+            @foreach (TodoItem todoItem in TodoItems.Where(x => x.Status == "Doing"))
+            {
+                <TodoItemBox TodoItem="todoItem" UpdateTodoItemList="GetTodoItems" />
+            }
+        </div>
+        <div class="col">
+            <p>Done</p>
+            @foreach (TodoItem todoItem in TodoItems.Where(x => x.Status == "Done"))
+            {
+                <TodoItemBox TodoItem="todoItem" UpdateTodoItemList="GetTodoItems" />
+            }
+        </div>
+    </div>
+</div>
+
+@code{
+
+    List<TodoItem> TodoItems = new List<TodoItem>();
+    string NewTodoTitleInput;
+    string NewTodoDescription;
+
+    protected async override Task OnInitializedAsync()
+    {
+        await GetTodoItems();
+        await base.OnInitializedAsync();
+    }
+
+    public async Task GetTodoItems()
+    {
+        HttpResponseMessage response = await client.GetAsync("api/todoItem/list");
+        if (response.IsSuccessStatusCode)
+        {
+            TodoItems = JsonConvert.DeserializeObject<List<TodoItem>>(response.Content.ReadAsStringAsync().Result);
+        }
+    }
+
+    public async Task AddTodoItem()
+    {
+        if (!string.IsNullOrWhiteSpace(NewTodoTitleInput))
+        {
+            await client.PostAsJsonAsync("api/todoItem", new TodoItem { Title = NewTodoTitleInput, Description = "Click here to add a descripton!", Status = "New" });
+            await GetTodoItems();
+            NewTodoTitleInput = string.Empty;
+        }
+    }
+}

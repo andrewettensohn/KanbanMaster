@@ -1,53 +1,9 @@
 ﻿@page "/"
-@attribute [Authorize]
-@inject HttpClient client
 
-<div class="row">
-    <h6 class="display-4">Todo List</h6>
-</div>
-<div class="row">
-    <div class="col-lg">
-        <input type="text" class="form-control mb-3" placeholder="Enter a new todo item" @bind-value="NewTodoTitleInput" @onfocusout="AddTodoItem" />
-    </div>
-    <div class="col-lg">
-        @foreach (TodoItem todoItem in TodoItems)
-        {
-            <TodoItemBox TodoItem="todoItem" UpdateTodoItemList="GetTodoItems" />
-        }
-    </div>
+<div class="row justify-content-center">
+    <h1 class="display-4">KanbanMaster</h1>
 </div>
 
 @code{
-
-    List<TodoItem> TodoItems = new List<TodoItem>();
-    string NewTodoTitleInput;
-    string NewTodoDescription;
-
-    protected async override Task OnInitializedAsync()
-    {
-        await GetTodoItems();
-        await base.OnInitializedAsync();
-    }
-
-    public async Task GetTodoItems()
-    {
-        HttpResponseMessage response = await client.GetAsync("api/todoItem/list");
-        if (response.IsSuccessStatusCode)
-        {
-            TodoItems = JsonConvert.DeserializeObject<List<TodoItem>>(response.Content.ReadAsStringAsync().Result);
-        }
-    }
-
-    public async Task AddTodoItem()
-    {
-        if (!string.IsNullOrWhiteSpace(NewTodoTitleInput))
-        {
-            await client.PostAsJsonAsync("api/todoItem", new TodoItem { Title = NewTodoTitleInput, Description = "Click here to add a descripton!", Status = "New" });
-            await GetTodoItems();
-            NewTodoTitleInput = string.Empty;
-        }
-    }
-
-
 
 }
