@@ -5,7 +5,8 @@
         <span class="oi oi-trash" @onclick="DeleteTodoItem"></span>
     </div>
     <div class="row px-3">
-        <h4>@TodoItem.Title</h4>
+        <h4 class="@titleCss" @onclick="ToggleDisplayTitleInput">@TodoItem.Title</h4>
+        <input class="form-control @titleInputCss" type="text" placeholder="Click here to edit" @onfocusout="UpdateTitle" @bind="TodoItem.Title" />
     </div>
     <div class="row">
         <div class="col-lg-5">
@@ -13,9 +14,13 @@
                 <div class="input-group @taskStatusInputCss">
                     <select class="form-control" @bind="TodoItem.Status">
                         <option>@TodoItem.Status</option>
-                        <option>Doing</option>
-                        <option>Done</option>
-                        <option>New</option>
+                        @foreach (string option in TaskStatusOptions)
+                        {
+                            if (option != TodoItem.Status)
+                            {
+                                <option>@option</option>
+                            }
+                        }
                     </select>
                     <div class="input-group-append">
                         <button class="btn btn-outline-secondary" @onclick="UpdateTaskStatus">Update</button>
@@ -37,9 +42,10 @@
     [Parameter]
     public EventCallback UpdateTodoItemList { get; set; }
 
+    private List<string> TaskStatusOptions = new List<string> { "New", "Doing", "Done" };
     private string newTodoDescription;
 
-    #region CSS Properties
+    #region CSS Properties and Methods
 
     private bool displayDescriptionInput = false;
     private string inputDescriptionCss => displayDescriptionInput ? null : "d-none";
@@ -49,17 +55,17 @@
     private string taskStatusInputCss => displayTaskStatusInput ? null : "d-none";
     private string taskStatusCss => displayTaskStatusInput ? "d-none" : null;
 
-    protected async void OnIntilizedAsync()
-    {
-        await base.OnInitializedAsync();
-    }
-
-    #endregion
-
-    #region Methods
+    private bool displayTitleInput = false;
+    private string titleInputCss => displayTitleInput ? null : "d-none";
+    private string titleCss => displayTitleInput ? "d-none" : null;
 
     public void ToggleDisplayDescriptionInput() => displayDescriptionInput = !displayDescriptionInput;
     public void ToggleDisplayTaskStatusInput() => displayTaskStatusInput = !displayTaskStatusInput;
+    public void ToggleDisplayTitleInput() => displayTitleInput = !displayTitleInput;
+
+    #endregion
+
+    #region API Methods
 
     public async Task AddDescription()
     {
@@ -76,6 +82,12 @@
     public async Task UpdateTaskStatus()
     {
         ToggleDisplayTaskStatusInput();
+        await UpdateTodoItem();
+    }
+
+    public async Task UpdateTitle()
+    {
+        ToggleDisplayTitleInput();
         await UpdateTodoItem();
     }
 
