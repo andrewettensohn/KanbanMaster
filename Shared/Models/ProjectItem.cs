@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace KanbanMaster.Shared.Models
@@ -15,5 +16,8 @@ namespace KanbanMaster.Shared.Models
         public DateTime? DoingTime { get; set; }
         public DateTime? DoneTime { get; set; }
         public int TotalTasks { get; set; }
+
+        [NotMapped]
+        public List<TodoItem> TodoItems { get; set; }
     }
 }

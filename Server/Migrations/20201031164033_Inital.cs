@@ -81,6 +81,26 @@ namespace KanbanMaster.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ProjectItems",
+                columns: table => new
+                {
+                    ProjectItemId = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: true),
+                    Description = table.Column<string>(nullable: true),
+                    IsActive = table.Column<bool>(nullable: false),
+                    NewTime = table.Column<DateTime>(nullable: true),
+                    DoingTime = table.Column<DateTime>(nullable: true),
+                    DoneTime = table.Column<DateTime>(nullable: true),
+                    TotalTasks = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProjectItems", x => x.ProjectItemId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TodoItems",
                 columns: table => new
                 {
@@ -288,6 +308,9 @@ namespace KanbanMaster.Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "PersistedGrants");
+
+            migrationBuilder.DropTable(
+                name: "ProjectItems");
 
             migrationBuilder.DropTable(
                 name: "TodoItems");

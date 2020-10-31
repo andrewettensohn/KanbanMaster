@@ -166,6 +166,42 @@ namespace KanbanMaster.Server.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("KanbanMaster.Shared.Models.ProjectItem", b =>
+                {
+                    b.Property<int>("ProjectItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DoingTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DoneTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("NewTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TotalTasks")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ProjectItemId");
+
+                    b.ToTable("ProjectItems");
+                });
+
             modelBuilder.Entity("KanbanMaster.Shared.Models.TodoItem", b =>
                 {
                     b.Property<int>("ToDoItemId")

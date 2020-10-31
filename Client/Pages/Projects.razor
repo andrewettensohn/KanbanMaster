@@ -7,18 +7,42 @@
 </div>
 <div class="row">
     <div class="col-lg-4">
-        <input type="text" class="form-control mb-3" placeholder="Enter a new project" />
+        <input type="text" class="form-control mb-3" placeholder="Enter a new project" @bind-value="NewProjectTitle" @onfocusout="AddProject" />
     </div>
 </div>
 <div class="row justify-content-center">
     <div class="col-lg-9">
-    <ProjectItemBox />
+    @foreach(ProjectItem project in ProjectItems)
+    {
+        <ProjectItemBox ProjectItem="project" RefreshProjectItemList="GetProjects" />
+    }
     </div>
 </div>
 
 @code {
 
     private string NewProjectTitle;
+    private List<ProjectItem> ProjectItems = new List<ProjectItem>();
 
+    protected override async Task OnInitializedAsync()
+    {
+        await GetProjects();
+        await base.OnInitializedAsync();
+    }
 
+    public async Task AddProject()
+    {
+        HttpResponseMessage response = await client.PostAsJsonAsync("api/projectItem", new ProjectItem { Name = NewProjectTitle });
+        NewProjectTitle = string.Empty;
+        await GetProjects();
+    }
+
+    public async Task GetProjects()
+    {
+        HttpResponseMessage response = await client.GetAsync("api/projectItem/list");
+        if (response.IsSuccessStatusCode)
+        {
+            ProjectItems = JsonConvert.DeserializeObject<List<ProjectItem>>(response.Content.ReadAsStringAsync().Result);
+        }
+    }
 }

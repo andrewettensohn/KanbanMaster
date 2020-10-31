@@ -1,10 +1,12 @@
-﻿<div class="shadow p-3 mb-3 rounded">
+﻿@inject HttpClient client
+
+<div class="shadow p-3 mb-3 rounded">
     <div class="row justify-content-center">
         <span class="oi oi-caret-bottom"></span>
     </div>
     <div class="row">
         <div class="col">
-            <h5>New Project</h5>
+            <h5>@ProjectItem.Name</h5>
         </div>
         <div class="col">
             <p class="float-right">Start Date</p>
@@ -12,10 +14,19 @@
     </div>
     <div class="row">
         <div class="col">
-            <p>3 Tasks</p>
+            <span>@ProjectItem.TotalTasks Tasks</span>
         </div>
         <div class="col">
-            <p class="float-right">01/20/20</p>
+            <p class="float-right">
+                @if(ProjectItem.DoingTime != null)
+                {
+                    <span>@ProjectItem.DoingTime.Value.ToString("MM/dd/yy");</span>
+                }
+                else
+                {
+                    <span>Not Started</span>
+                }
+            </p>
         </div>
     </div>
     <div class="row">
@@ -29,7 +40,7 @@
     </div>
     <hr>
     <div class="row p-3">
-        <span>Hello, my name is Jonas, I'm carrying away. Thanks for all you showed us.</span>
+        <span>@ProjectItem.Description</span>
     </div>
     <hr />
     <div class="row px-3">
@@ -57,7 +68,7 @@
                 <span class="oi oi-box"></span> Archive
             </div>
         </div>
-        <div class="col">
+        <div class="col" @onclick="DeleteProject">
             <div class="d-xl-none d-lg-none">
                 <span class="oi oi-trash"></span>
             </div>
@@ -69,5 +80,17 @@
 </div>
 
 @code {
+
+    [Parameter]
+    public ProjectItem ProjectItem { get; set; }
+
+    [Parameter]
+    public EventCallback RefreshProjectItemList { get; set; }
+
+    private async Task DeleteProject()
+    {
+        await client.PostAsJsonAsync("api/projectItem/delete", ProjectItem);
+        await RefreshProjectItemList.InvokeAsync(null);
+    }
 
 }

@@ -22,10 +22,26 @@ namespace KanbanMaster.Server.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<ProjectItem> ListProjectItems()
+        [HttpPost]
+        public async Task CreateProjectItem(ProjectItem project)
         {
-            
+            project.NewTime = DateTime.Now;
+            project.Description = "Enter a descript for this project.";
+            await _context.AddAsync(project);
+            await _context.SaveChangesAsync();
+        }
+
+        [HttpPost("delete")]
+        public async Task DeleteProjectItem(ProjectItem projectItem)
+        {
+            _context.Remove(projectItem);
+            await _context.SaveChangesAsync();
+        }
+
+        [HttpGet("list")]
+        public async Task<List<ProjectItem>> ListProjectItems()
+        {
+            return await _context.ProjectItems.ToListAsync();
         }
     }
 }
