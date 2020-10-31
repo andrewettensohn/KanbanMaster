@@ -11,5 +11,8 @@ namespace KanbanMaster.Shared.Models
         public string Title { get; set; }
         public string Description { get; set; }
         public string Status { get; set; }
+        public DateTime TaskNewTime { get; set; }
+        public DateTime TaskDoingTime { get; set; }
+        public DateTime TaskDoneTime { get; set; }
     }
 }

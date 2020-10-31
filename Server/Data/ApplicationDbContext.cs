@@ -20,5 +20,6 @@ namespace KanbanMaster.Server.Data
         }
 
         public DbSet<TodoItem> TodoItems { get; set; }
+        public DbSet<ProjectItem> ProjectItems { get; set; }
     }
 }

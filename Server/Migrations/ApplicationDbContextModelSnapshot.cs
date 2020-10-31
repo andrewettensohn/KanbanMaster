@@ -179,6 +179,15 @@ namespace KanbanMaster.Server.Migrations
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("TaskDoingTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("TaskDoneTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("TaskNewTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
