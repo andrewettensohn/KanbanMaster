@@ -27,7 +27,16 @@ namespace KanbanMaster.Server.Controllers
         {
             project.NewTime = DateTime.Now;
             project.Description = "Enter a descript for this project.";
+            if (string.IsNullOrWhiteSpace(project.Name)) project.Name = "New Project";
+
             await _context.AddAsync(project);
+            await _context.SaveChangesAsync();
+        }
+
+        [HttpPut]
+        public async Task UpdateProjectItem(ProjectItem project)
+        {
+            _context.Entry(project).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
 

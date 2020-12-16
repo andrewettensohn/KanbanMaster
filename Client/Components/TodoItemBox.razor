@@ -88,12 +88,12 @@
 
     public async Task UpdateTodoItem()
     {
-        await client.PutAsJsonAsync("api/todoItem", TodoItem);
+        await client.PutAsJsonAsync(Constants.ApiRoutes.TodoItem, TodoItem);
     }
 
     public async Task DeleteTodoItem()
     {
-        await client.PostAsJsonAsync("api/todoItem/delete", TodoItem);
+        await client.PostAsJsonAsync(Constants.ApiRoutes.TodoItemDelete, TodoItem);
         await UpdateTodoItemList.InvokeAsync(null);
     }
 
