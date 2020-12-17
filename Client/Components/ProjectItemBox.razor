@@ -3,11 +3,12 @@
 
 <div class="shadow p-3 mb-3 rounded">
     <div class="row justify-content-center">
-        <span class="oi oi-caret-bottom"></span>
+        <span class="@collapseIconCss" @onclick="ToggleCollapse"></span>
     </div>
     <div class="row">
         <div class="col">
-            <h5>@ProjectItem.Name</h5>
+            <h5 class="@titleCss" @onclick="ToggleDisplayTitleInput">@ProjectItem.Name</h5>
+            <input class="form-control @titleInputCss" type="text" placeholder="Click here to edit" @onfocusout="UpdateTitle" @bind="ProjectItem.Name" />
         </div>
         <div class="col">
             <p class="float-right">Start Date</p>
@@ -33,48 +34,51 @@
     <div class="row">
         <div class="border border-secondary container-fluid">
             <div class="row p-1">
-                <div class="bg-danger" style="height:24px;width:33.33%"></div>
-                <div class="bg-warning" style="height:24px;width:33.33%"></div>
-                <div class="bg-success" style="height:24px;width:33.33%"></div>
+                <div class="bg-danger" style="height:24px;width:@ProjectItem.PercentageNew%"></div>
+                <div class="bg-warning" style="height:24px;width:@ProjectItem.PercentageDoing%"></div>
+                <div class="bg-success" style="height:24px;width:@ProjectItem.PercentageDone%"></div>
             </div>
         </div>
     </div>
     <hr>
-    <div class="row p-3">
-        <span>@ProjectItem.Description</span>
-    </div>
-    <hr />
-    <div class="row px-3">
-        <div class="col" @onclick="SetToActive">
-            <div class="d-xl-none d-lg-none">
-                <span class="oi oi-clipboard"></span>
-            </div>
-            <div class="d-none d-lg-block d-xl-block">
-                <span class="oi oi-clipboard"></span> Board
-            </div>
+    <div class="@collapseAreaCss">
+        <div class="row p-3">
+            <span class="@DescriptionCss" @onclick="ToggleDisplayDescriptionInput">@ProjectItem.Description</span>
+            <input type="text" class="form-control @inputDescriptionCss" placeholder="Click here to add a description" @bind-value="newDescription" @onfocusout="AddDescription" />
         </div>
-        <div class="col">
-            <div class="d-xl-none d-lg-none">
-                <span class="oi oi-book"></span>
+        <hr />
+        <div class="row px-3">
+            <div class="col" @onclick="SetToActive">
+                <div class="d-xl-none d-lg-none">
+                    <span class="oi oi-clipboard"></span>
+                </div>
+                <div class="d-none d-lg-block d-xl-block">
+                    <span class="oi oi-clipboard"></span> Board
+                </div>
             </div>
-            <div class="d-none d-lg-block d-xl-block">
-                <span class="oi oi-book"></span> History
+            <div class="col">
+                <div class="d-xl-none d-lg-none">
+                    <span class="oi oi-book"></span>
+                </div>
+                <div class="d-none d-lg-block d-xl-block">
+                    <span class="oi oi-book"></span> History
+                </div>
             </div>
-        </div>
-        <div class="col">
-            <div class="d-xl-none d-lg-none">
-                <span class="oi oi-box"></span>
+            <div class="col">
+                <div class="d-xl-none d-lg-none">
+                    <span class="oi oi-box"></span>
+                </div>
+                <div class="d-none d-lg-block d-xl-block">
+                    <span class="oi oi-box"></span> Archive
+                </div>
             </div>
-            <div class="d-none d-lg-block d-xl-block">
-                <span class="oi oi-box"></span> Archive
-            </div>
-        </div>
-        <div class="col" @onclick="DeleteProject">
-            <div class="d-xl-none d-lg-none">
-                <span class="oi oi-trash"></span>
-            </div>
-            <div class="d-none d-lg-block d-xl-block">
-                <span class="oi oi-trash"></span> Delete
+            <div class="col" @onclick="DeleteProject">
+                <div class="d-xl-none d-lg-none">
+                    <span class="oi oi-trash"></span>
+                </div>
+                <div class="d-none d-lg-block d-xl-block">
+                    <span class="oi oi-trash"></span> Delete
+                </div>
             </div>
         </div>
     </div>
@@ -88,11 +92,55 @@
     [Parameter]
     public EventCallback RefreshProjectItemList { get; set; }
 
+    private string newDescription;
+
+    #region CSS Properties and Methods
+
+    private bool displayDescriptionInput = false;
+    private string inputDescriptionCss => displayDescriptionInput ? null : "d-none";
+    private string DescriptionCss => displayDescriptionInput ? "d-none" : null;
+
+    private bool displayCollapseArea = false;
+    private string collapseAreaCss => displayCollapseArea ? null : "d-none";
+    private string collapseIconCss => displayCollapseArea ? "oi oi-caret-bottom" : "oi oi-caret-top";
+
+    private bool displayTitleInput = false;
+    private string titleInputCss => displayTitleInput ? null : "d-none";
+    private string titleCss => displayTitleInput ? "d-none" : null;
+
+    public void ToggleDisplayDescriptionInput() => displayDescriptionInput = !displayDescriptionInput;
+    public void ToggleDisplayTitleInput() => displayTitleInput = !displayTitleInput;
+    public void ToggleCollapse() => displayCollapseArea = !displayCollapseArea;
+
+    #endregion
+
     private async Task SetToActive()
     {
         ProjectItem.IsActive = true;
         await client.PutAsJsonAsync(Constants.ApiRoutes.ProjectSetActive, ProjectItem);
         navigation.NavigateTo("board");
+    }
+
+    public async Task UpdateTitle()
+    {
+        ToggleDisplayTitleInput();
+        await UpdateProjectItem();
+    }
+
+    public async Task AddDescription()
+    {
+        if (!string.IsNullOrWhiteSpace(newDescription))
+        {
+            ProjectItem.Description = newDescription;
+            await UpdateProjectItem();
+            newDescription = string.Empty;
+        }
+        ToggleDisplayDescriptionInput();
+    }
+
+    public async Task UpdateProjectItem()
+    {
+        await client.PutAsJsonAsync(Constants.ApiRoutes.Project, ProjectItem);
     }
 
     private async Task DeleteProject()

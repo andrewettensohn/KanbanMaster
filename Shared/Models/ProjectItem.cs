@@ -18,6 +18,12 @@ namespace KanbanMaster.Shared.Models
         public int TotalTasks { get; set; }
 
         [NotMapped]
+        public decimal PercentageNew { get; set; }
+        [NotMapped]
+        public decimal PercentageDoing { get; set; }
+        [NotMapped]
+        public decimal PercentageDone { get; set; }
+        [NotMapped]
         public List<TodoItem> TodoItems { get; set; }
     }
 }

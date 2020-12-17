@@ -45,7 +45,7 @@ namespace KanbanMaster.Server.Controllers
         [HttpPost]
         public async Task CreateTodoItem(TodoItem todoItem)
         {
-            todoItem = SetInitalTodoItemFields(todoItem);
+            todoItem = await SetInitalTodoItemFields(todoItem);
 
             await _context.AddAsync(todoItem);
             await _context.SaveChangesAsync();
@@ -74,14 +74,31 @@ namespace KanbanMaster.Server.Controllers
         #region NonAction
 
         [NonAction]
-        private TodoItem SetInitalTodoItemFields(TodoItem todoItem)
+        private async Task<TodoItem> SetInitalTodoItemFields(TodoItem todoItem)
         {
             string user = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             todoItem.UserId = user;
             todoItem.Description = "Click here to add a descripton!";
             todoItem.Status = "New";
-            todoItem.ProjectItemId = GetActiveProject(user).ProjectItemId;
+            await SetProjectItemFields(todoItem);
+
+            return todoItem;
+        }
+
+        [NonAction]
+        private async Task<TodoItem> SetProjectItemFields(TodoItem todoItem)
+        {
+            ProjectItem activeProject = GetActiveProject(todoItem.UserId);
+
+            if(activeProject != null)
+            {
+                todoItem.ProjectItemId = activeProject.ProjectItemId;
+                activeProject.TotalTasks += 1;
+
+                _context.Entry(activeProject).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
 
             return todoItem;
         }

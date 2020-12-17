@@ -28,7 +28,11 @@ namespace KanbanMaster.Server.Controllers
         public async Task<List<ProjectItem>> ListProjectItems()
         {
             string user = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return await _context.ProjectItems.Where(x => x.UserId == user).ToListAsync();
+
+            List<ProjectItem> projectItems = await _context.ProjectItems.Where(x => x.UserId == user).ToListAsync();
+            projectItems = GetProjectTodoItems(projectItems);  
+
+            return projectItems;
         }
 
         #endregion
@@ -59,6 +63,7 @@ namespace KanbanMaster.Server.Controllers
         public async Task UpdateProjectItem(ProjectItem project)
         {
             _context.Entry(project).State = EntityState.Modified;
+            //Exception occurs here on Set Active
             await _context.SaveChangesAsync();
         }
 
@@ -70,11 +75,14 @@ namespace KanbanMaster.Server.Controllers
             string user = User.FindFirstValue(ClaimTypes.NameIdentifier);
             List<ProjectItem> projects = _context.ProjectItems.Where(x => x.UserId == user).ToList();
 
-            projects.RemoveAll(x => x.ProjectItemId != project.ProjectItemId);
-            projects.ForEach(x => x.IsActive = false);
+            if(projects.Any(x => x.ProjectItemId != project.ProjectItemId))
+            {
+                projects.RemoveAll(x => x.ProjectItemId != project.ProjectItemId);
+                projects.ForEach(x => x.IsActive = false);
 
-            _context.UpdateRange(projects);
-            await _context.SaveChangesAsync();
+                _context.UpdateRange(projects);
+                await _context.SaveChangesAsync();
+            }
 
             await UpdateProjectItem(project);
         }
@@ -84,7 +92,7 @@ namespace KanbanMaster.Server.Controllers
         #region
 
         [NonAction]
-        public ProjectItem SetInitalProjectItemFields(ProjectItem project)
+        private ProjectItem SetInitalProjectItemFields(ProjectItem project)
         {
             string user = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -94,6 +102,23 @@ namespace KanbanMaster.Server.Controllers
             if (string.IsNullOrWhiteSpace(project.Name)) project.Name = "New Project";
 
             return project;
+        }
+
+        [NonAction]
+        private List<ProjectItem> GetProjectTodoItems(List<ProjectItem> projectItems)
+        {
+            foreach (ProjectItem project in projectItems)
+            {
+                if(project.TotalTasks != 0)
+                {
+                    project.TodoItems = _context.TodoItems.Where(x => x.ProjectItemId == project.ProjectItemId).ToList();
+                    project.PercentageNew = project.TotalTasks / project.TodoItems.Where(x => x.Status == "New").Count();
+                    project.PercentageDoing = project.TotalTasks / project.TodoItems.Where(x => x.Status == "Doing").Count();
+                    project.PercentageDone = project.TotalTasks / project.TodoItems.Where(x => x.Status == "Done").Count();
+                }
+            }
+
+            return projectItems;
         }
 
         #endregion
