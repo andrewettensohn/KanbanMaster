@@ -91,7 +91,7 @@
     private async Task SetToActive()
     {
         ProjectItem.IsActive = true;
-        await client.PutAsJsonAsync(Constants.ApiRoutes.Project, ProjectItem);
+        await client.PutAsJsonAsync(Constants.ApiRoutes.ProjectSetActive, ProjectItem);
         navigation.NavigateTo("board");
     }
 

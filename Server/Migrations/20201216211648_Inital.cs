@@ -106,6 +106,7 @@ namespace KanbanMaster.Server.Migrations
                 {
                     ToDoItemId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    ProjectItemId = table.Column<int>(nullable: false),
                     UserId = table.Column<string>(nullable: true),
                     Title = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true),

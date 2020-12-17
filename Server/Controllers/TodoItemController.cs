@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using KanbanMaster.Server.Data;
 using KanbanMaster.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,12 +22,7 @@ namespace KanbanMaster.Server.Controllers
             _context = context;
         }
 
-        [HttpPost]
-        public async Task CreateTodoItem(TodoItem todoItem)
-        {
-            await _context.AddAsync(todoItem);
-            await _context.SaveChangesAsync();
-        }
+        #region GET
 
         [HttpGet]
         public async Task<TodoItem> GetTodoItem(int todoItem)
@@ -39,13 +33,21 @@ namespace KanbanMaster.Server.Controllers
         [HttpGet("list")]
         public async Task<List<TodoItem>> ListTodoItems()
         {
-            return await _context.TodoItems.ToListAsync();
+            string user = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ProjectItem activeProject = GetActiveProject(user);
+            return await GetProjectTodoItems(activeProject);
         }
 
-        [HttpPut]
-        public async Task UpdateTodoItem(TodoItem todoItem)
+        #endregion
+
+        #region POST
+
+        [HttpPost]
+        public async Task CreateTodoItem(TodoItem todoItem)
         {
-            _context.Entry(todoItem).State = EntityState.Modified;
+            todoItem = SetInitalTodoItemFields(todoItem);
+
+            await _context.AddAsync(todoItem);
             await _context.SaveChangesAsync();
         }
 
@@ -55,5 +57,41 @@ namespace KanbanMaster.Server.Controllers
             _context.Remove(todoItem);
             await _context.SaveChangesAsync();
         }
+
+        #endregion
+
+        #region PUT
+
+        [HttpPut]
+        public async Task UpdateTodoItem(TodoItem todoItem)
+        {
+            _context.Entry(todoItem).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+        }
+
+        #endregion
+
+        #region NonAction
+
+        [NonAction]
+        private TodoItem SetInitalTodoItemFields(TodoItem todoItem)
+        {
+            string user = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            todoItem.UserId = user;
+            todoItem.Description = "Click here to add a descripton!";
+            todoItem.Status = "New";
+            todoItem.ProjectItemId = GetActiveProject(user).ProjectItemId;
+
+            return todoItem;
+        }
+
+        [NonAction]
+        private ProjectItem GetActiveProject(string user) => _context.ProjectItems.FirstOrDefault(x => x.IsActive && x.UserId == user);
+
+        [NonAction]
+        private async Task<List<TodoItem>> GetProjectTodoItems(ProjectItem project) => await _context.TodoItems.Where(x => x.ProjectItemId == project.ProjectItemId).ToListAsync();
+
+        #endregion
     }
 }
