@@ -16,6 +16,7 @@ namespace KanbanMaster.Shared.Models
         public DateTime? DoingTime { get; set; }
         public DateTime? DoneTime { get; set; }
         public int TotalTasks { get; set; }
+        public bool IsArchived { get; set; }
 
         [NotMapped]
         public decimal PercentageNew { get; set; }

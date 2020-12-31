@@ -22,7 +22,7 @@
             <p class="float-right">
                 @if(ProjectItem.DoingTime != null)
                 {
-                    <span>@ProjectItem.DoingTime.Value.ToString("MM/dd/yy");</span>
+                    <span>@ProjectItem.DoingTime.Value.ToString("MM/dd/yy")</span>
                 }
                 else
                 {
@@ -144,6 +144,12 @@
     }
 
     private async Task DeleteProject()
+    {
+        await client.PostAsJsonAsync(Constants.ApiRoutes.ProjectDelete, ProjectItem);
+        await RefreshProjectItemList.InvokeAsync(null);
+    }
+
+    private async Task ArchiveProject()
     {
         await client.PostAsJsonAsync(Constants.ApiRoutes.ProjectDelete, ProjectItem);
         await RefreshProjectItemList.InvokeAsync(null);

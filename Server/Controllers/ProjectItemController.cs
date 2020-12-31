@@ -57,39 +57,45 @@ namespace KanbanMaster.Server.Controllers
 
         #endregion
 
-        #region
+        #region PUT
 
         [HttpPut]
         public async Task UpdateProjectItem(ProjectItem project)
         {
             _context.Entry(project).State = EntityState.Modified;
-            //Exception occurs here on Set Active
             await _context.SaveChangesAsync();
         }
 
         [HttpPut("setActive")]
         public async Task SetActiveProject(ProjectItem project)
         {
-            project.IsActive = true;
 
             string user = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            List<ProjectItem> projects = _context.ProjectItems.Where(x => x.UserId == user).ToList();
 
-            if(projects.Any(x => x.ProjectItemId != project.ProjectItemId))
+            if(_context.ProjectItems.Any(x => x.IsActive))
             {
-                projects.RemoveAll(x => x.ProjectItemId != project.ProjectItemId);
-                projects.ForEach(x => x.IsActive = false);
-
-                _context.UpdateRange(projects);
-                await _context.SaveChangesAsync();
+                await SetActiveProjectToInactive();
             }
+
+            ProjectItem newActiveProject = await _context.ProjectItems.FirstOrDefaultAsync(x => x.ProjectItemId == project.ProjectItemId);
+            newActiveProject.IsActive = true;
+            await UpdateProjectItem(newActiveProject);
+        }
+
+        [HttpPut("archive")]
+        public async Task ArchiveProject(ProjectItem project)
+        {
+            await SetActiveProjectToInactive();
+
+            project.DoneTime = DateTime.Now;
+            project.IsArchived = true;
 
             await UpdateProjectItem(project);
         }
 
         #endregion
 
-        #region
+        #region Non-Action
 
         [NonAction]
         private ProjectItem SetInitalProjectItemFields(ProjectItem project)
@@ -98,10 +104,21 @@ namespace KanbanMaster.Server.Controllers
 
             project.UserId = user;
             project.NewTime = DateTime.Now;
-            project.Description = "Enter a descript for this project.";
+            project.Description = "Enter a description for this project.";
             if (string.IsNullOrWhiteSpace(project.Name)) project.Name = "New Project";
 
             return project;
+        }
+
+        [NonAction]
+        private async Task SetActiveProjectToInactive()
+        {
+            if (_context.ProjectItems.Any(x => x.IsActive))
+            {
+                ProjectItem activeProject = _context.ProjectItems.FirstOrDefault(x => x.IsActive);
+                activeProject.IsActive = false;
+                await UpdateProjectItem(activeProject);
+            }
         }
 
         [NonAction]
@@ -112,9 +129,19 @@ namespace KanbanMaster.Server.Controllers
                 if(project.TotalTasks != 0)
                 {
                     project.TodoItems = _context.TodoItems.Where(x => x.ProjectItemId == project.ProjectItemId).ToList();
-                    project.PercentageNew = project.TotalTasks / project.TodoItems.Where(x => x.Status == "New").Count();
-                    project.PercentageDoing = project.TotalTasks / project.TodoItems.Where(x => x.Status == "Doing").Count();
-                    project.PercentageDone = project.TotalTasks / project.TodoItems.Where(x => x.Status == "Done").Count();
+
+                    if(project.TodoItems.Any(x => x.Status == "New"))
+                    {
+                        project.PercentageNew = Math.Round((decimal)(100 * project.TodoItems.Where(x => x.Status == "New").Count()) / project.TotalTasks);
+                    }
+                    if(project.TodoItems.Any(x => x.Status == "Doing"))
+                    {
+                        project.PercentageDoing = Math.Round((decimal)(100 * project.TodoItems.Where(x => x.Status == "Doing").Count()) / project.TotalTasks);
+                    }
+                    if(project.TodoItems.Any(x => x.Status == "Done"))
+                    {
+                        project.PercentageDone = Math.Round((decimal)(100 * project.TodoItems.Where(x => x.Status == "Done").Count()) / project.TotalTasks);
+                    }
                 }
             }
 
