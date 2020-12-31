@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -95,6 +96,11 @@ namespace KanbanMaster.Server.Controllers
             {
                 todoItem.ProjectItemId = activeProject.ProjectItemId;
                 activeProject.TotalTasks += 1;
+
+                if(activeProject.TotalTasks >= 1 && activeProject.DoingTime == null)
+                {
+                    activeProject.DoingTime = DateTime.Now;
+                }
 
                 _context.Entry(activeProject).State = EntityState.Modified;
                 await _context.SaveChangesAsync();

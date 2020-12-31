@@ -57,7 +57,7 @@ namespace KanbanMaster.Server.Controllers
 
         #endregion
 
-        #region
+        #region PUT
 
         [HttpPut]
         public async Task UpdateProjectItem(ProjectItem project)
@@ -71,13 +71,10 @@ namespace KanbanMaster.Server.Controllers
         {
 
             string user = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            List<ProjectItem> projects = _context.ProjectItems.Where(x => x.UserId == user).ToList();
 
-            if(projects.Any(x => x.IsActive))
+            if(_context.ProjectItems.Any(x => x.IsActive))
             {
-                ProjectItem oldActiveProject = projects.FirstOrDefault(x => x.IsActive);
-                oldActiveProject.IsActive = false;
-                await UpdateProjectItem(oldActiveProject);
+                await SetActiveProjectToInactive();
             }
 
             ProjectItem newActiveProject = await _context.ProjectItems.FirstOrDefaultAsync(x => x.ProjectItemId == project.ProjectItemId);
@@ -85,9 +82,20 @@ namespace KanbanMaster.Server.Controllers
             await UpdateProjectItem(newActiveProject);
         }
 
+        [HttpPut("archive")]
+        public async Task ArchiveProject(ProjectItem project)
+        {
+            await SetActiveProjectToInactive();
+
+            project.DoneTime = DateTime.Now;
+            project.IsArchived = true;
+
+            await UpdateProjectItem(project);
+        }
+
         #endregion
 
-        #region
+        #region Non-Action
 
         [NonAction]
         private ProjectItem SetInitalProjectItemFields(ProjectItem project)
@@ -100,6 +108,17 @@ namespace KanbanMaster.Server.Controllers
             if (string.IsNullOrWhiteSpace(project.Name)) project.Name = "New Project";
 
             return project;
+        }
+
+        [NonAction]
+        private async Task SetActiveProjectToInactive()
+        {
+            if (_context.ProjectItems.Any(x => x.IsActive))
+            {
+                ProjectItem activeProject = _context.ProjectItems.FirstOrDefault(x => x.IsActive);
+                activeProject.IsActive = false;
+                await UpdateProjectItem(activeProject);
+            }
         }
 
         [NonAction]
