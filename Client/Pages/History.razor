@@ -1,0 +1,33 @@
+﻿@page "/history"
+@attribute [Authorize]
+@inject HttpClient client
+
+<h3>History</h3>
+
+<ul class="list-group rounded">
+    @foreach (HistoryItem history in HistoryItems)
+    {
+        <li class="list-group-item text-light">@history.Time - @history.Title - @history.Description</li>
+    }
+</ul>
+
+@code {
+
+    private List<HistoryItem> HistoryItems = new List<HistoryItem>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetProjectHistory();
+        await base.OnInitializedAsync();
+    }
+
+    public async Task GetProjectHistory()
+    {
+        HttpResponseMessage response = await client.GetAsync(Constants.ApiRoutes.ProjectListHistory);
+        if (response.IsSuccessStatusCode)
+        {
+            HistoryItems = JsonConvert.DeserializeObject<List<HistoryItem>>(response.Content.ReadAsStringAsync().Result);
+        }
+    }
+
+}

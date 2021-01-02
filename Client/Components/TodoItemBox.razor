@@ -76,6 +76,17 @@
     public async Task UpdateTaskStatus()
     {
         ToggleDisplayTaskStatusInput();
+
+        if(TodoItem.Status == "Doing")
+        {
+            TodoItem.TaskDoingTime = DateTime.Now;
+        }
+
+        if(TodoItem.Status == "Done")
+        {
+            TodoItem.TaskDoneTime = DateTime.Now;
+        }
+
         await UpdateTodoItem();
         await UpdateTodoItemList.InvokeAsync(null);
     }

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KanbanMaster.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210102145325_Inital")]
+    [Migration("20210102163217_Inital")]
     partial class Inital
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -223,13 +223,13 @@ namespace KanbanMaster.Server.Migrations
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("TaskDoingTime")
+                    b.Property<DateTime?>("TaskDoingTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("TaskDoneTime")
+                    b.Property<DateTime?>("TaskDoneTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("TaskNewTime")
+                    b.Property<DateTime?>("TaskNewTime")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Title")

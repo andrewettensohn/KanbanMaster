@@ -46,6 +46,25 @@ namespace KanbanMaster.Server.Controllers
             return projectItems;
         }
 
+        [HttpGet("listHistory")]
+        public async Task<List<HistoryItem>> ListActiveProjectHistory()
+        {
+            string user = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            List<ProjectItem> projectItems = new List<ProjectItem> { await _context.ProjectItems.FirstOrDefaultAsync(x => x.UserId == user && x.IsActive) };
+            projectItems = GetProjectTodoItems(projectItems);
+            ProjectItem projectItem = projectItems.FirstOrDefault();
+
+            List<HistoryItem> historyItems = new List<HistoryItem>();
+
+            historyItems.AddRange(GetProjectHistoryItems(projectItem));
+            historyItems.AddRange(GetTodoItemHistoryItems(projectItem.TodoItems));
+
+            historyItems = historyItems.OrderBy(x => x.Time).ToList();
+            
+            return historyItems;
+        }
+
         #endregion
 
         #region POST
@@ -158,6 +177,52 @@ namespace KanbanMaster.Server.Controllers
 
             return projectItems;
         }
+
+        [NonAction]
+        private static List<HistoryItem> GetProjectHistoryItems(ProjectItem projectItem)
+        {
+            List<HistoryItem> historyItems = new List<HistoryItem>
+            {
+                new HistoryItem { Title = "Project Created", Time = projectItem.NewTime, Description = $"{projectItem.Name} created." }
+            };
+
+            if(projectItem.DoingTime != null)
+            {
+                historyItems.Add(new HistoryItem { Title = "Project Started", Time = projectItem.DoingTime, Description = $"{projectItem.Name} first task moved to doing." });
+            }
+
+            if(projectItem.DoneTime != null)
+            {
+                historyItems.Add(new HistoryItem { Title = "Project Completed and Archived", Time = projectItem.DoneTime, Description = $"{projectItem.Name} moved to archived." });
+            }
+
+            return historyItems;
+        }
+
+
+        [NonAction]
+        private static List<HistoryItem> GetTodoItemHistoryItems(List<TodoItem> todoItems)
+        {
+            List<HistoryItem> historyItems = new List<HistoryItem>();
+
+            foreach (TodoItem todoItem in todoItems)
+            {
+                historyItems.Add(new HistoryItem { Title = "Task Created", Time = todoItem.TaskNewTime, Description = $"{todoItem.Title} created." });
+
+                if(todoItem.TaskDoingTime != null)
+                {
+                    historyItems.Add(new HistoryItem { Title = "Task Started", Time = todoItem.TaskDoingTime, Description = $"{todoItem.Title} started." });
+                }
+
+                if(todoItem.TaskDoneTime != null)
+                {
+                    historyItems.Add(new HistoryItem { Title = "Task Completed", Time = todoItem.TaskDoneTime, Description = $"{todoItem.Title} completed." });
+                }
+            }
+
+            return historyItems;
+        }
+
 
         #endregion
     }

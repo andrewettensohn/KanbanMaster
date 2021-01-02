@@ -82,6 +82,7 @@ namespace KanbanMaster.Server.Controllers
             todoItem.UserId = user;
             todoItem.Description = "Click here to add a descripton!";
             todoItem.Status = "New";
+            todoItem.TaskNewTime = DateTime.Now;
             await SetProjectItemFields(todoItem);
 
             return todoItem;

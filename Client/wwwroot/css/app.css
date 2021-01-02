@@ -28,6 +28,16 @@ span {
     border: #212121;
 }
 
+.list-group {
+    background-color: #212121;
+    border: #212121;
+}
+
+.list-group-item {
+    background-color: #212121;
+    border: #212121;
+}
+
 app {
     position: relative;
     display: flex;

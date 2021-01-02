@@ -64,7 +64,7 @@
                     <span class="oi oi-book"></span> History
                 </div>
             </div>
-            <div class="col">
+            <div class="col" @onclick="ArchiveProject">
                 <div class="d-xl-none d-lg-none">
                     <span class="oi oi-box"></span>
                 </div>
@@ -151,7 +151,7 @@
 
     private async Task ArchiveProject()
     {
-        await client.PostAsJsonAsync(Constants.ApiRoutes.ProjectDelete, ProjectItem);
+        await client.PutAsJsonAsync(Constants.ApiRoutes.ProjectArchive, ProjectItem);
         await RefreshProjectItemList.InvokeAsync(null);
     }
 

@@ -112,9 +112,9 @@ namespace KanbanMaster.Server.Migrations
                     Title = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true),
                     Status = table.Column<string>(nullable: true),
-                    TaskNewTime = table.Column<DateTime>(nullable: false),
-                    TaskDoingTime = table.Column<DateTime>(nullable: false),
-                    TaskDoneTime = table.Column<DateTime>(nullable: false)
+                    TaskNewTime = table.Column<DateTime>(nullable: true),
+                    TaskDoingTime = table.Column<DateTime>(nullable: true),
+                    TaskDoneTime = table.Column<DateTime>(nullable: true)
                 },
                 constraints: table =>
                 {
