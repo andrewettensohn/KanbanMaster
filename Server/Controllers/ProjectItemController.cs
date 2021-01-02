@@ -29,8 +29,19 @@ namespace KanbanMaster.Server.Controllers
         {
             string user = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            List<ProjectItem> projectItems = await _context.ProjectItems.Where(x => x.UserId == user).ToListAsync();
+            List<ProjectItem> projectItems = await _context.ProjectItems.Where(x => x.UserId == user && !x.IsArchived).ToListAsync();
             projectItems = GetProjectTodoItems(projectItems);  
+
+            return projectItems;
+        }
+
+        [HttpGet("listArchived")]
+        public async Task<List<ProjectItem>> ListArchivedProjectItems()
+        {
+            string user = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            List<ProjectItem> projectItems = await _context.ProjectItems.Where(x => x.UserId == user && x.IsArchived).ToListAsync();
+            projectItems = GetProjectTodoItems(projectItems);
 
             return projectItems;
         }

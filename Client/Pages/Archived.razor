@@ -1,0 +1,46 @@
+﻿@page "/archived"
+@attribute [Authorize]
+@inject HttpClient client
+
+<div class="row justify-content-center">
+    <p class="h1">Archived Projects</p>
+</div>
+<div class="row justify-content-center">
+    @if (ProjectItems.Count > 0)
+    {
+        <div class="col-lg-9">
+            @foreach (ProjectItem project in ProjectItems)
+            {
+                <ProjectItemBox ProjectItem="project" RefreshProjectItemList="GetArchivedProjects" />
+            }
+        </div>
+    }
+    else
+    {
+        <div class="col-lg-9">
+            <p>No Archived Projects Found</p>
+        </div>
+    }
+</div>
+
+@code {
+
+    private string NewProjectTitle;
+    private List<ProjectItem> ProjectItems = new List<ProjectItem>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetArchivedProjects();
+        await base.OnInitializedAsync();
+    }
+
+    public async Task GetArchivedProjects()
+    {
+        HttpResponseMessage response = await client.GetAsync(Constants.ApiRoutes.ProjectListArchived);
+        if (response.IsSuccessStatusCode)
+        {
+            ProjectItems = JsonConvert.DeserializeObject<List<ProjectItem>>(response.Content.ReadAsStringAsync().Result);
+        }
+    }
+
+}

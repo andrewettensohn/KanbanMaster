@@ -13,6 +13,7 @@ namespace KanbanMaster.Client
 
             public static string Project = $"{BaseApiRoute}/projectItem";
             public static string ProjectList = $"{BaseApiRoute}/projectItem/list";
+            public static string ProjectListArchived = $"{BaseApiRoute}/projectItem/listArchived";
             public static string ProjectDelete = $"{BaseApiRoute}/projectItem/delete";
             public static string ProjectArchive = $"{BaseApiRoute}/projectItem/archive";
             public static string ProjectSetActive = $"{BaseApiRoute}/projectItem/setActive";

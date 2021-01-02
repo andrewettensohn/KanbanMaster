@@ -93,7 +93,8 @@ namespace KanbanMaster.Server.Migrations
                     NewTime = table.Column<DateTime>(nullable: true),
                     DoingTime = table.Column<DateTime>(nullable: true),
                     DoneTime = table.Column<DateTime>(nullable: true),
-                    TotalTasks = table.Column<int>(nullable: false)
+                    TotalTasks = table.Column<int>(nullable: false),
+                    IsArchived = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {

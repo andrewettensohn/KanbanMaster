@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KanbanMaster.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20201216211648_Inital")]
+    [Migration("20210102145325_Inital")]
     partial class Inital
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -185,6 +185,9 @@ namespace KanbanMaster.Server.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsArchived")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")

@@ -11,12 +11,21 @@
     </div>
 </div>
 <div class="row justify-content-center">
-    <div class="col-lg-9">
-    @foreach(ProjectItem project in ProjectItems)
+    @if (ProjectItems.Count > 0)
     {
-        <ProjectItemBox ProjectItem="project" RefreshProjectItemList="GetProjects" />
+        <div class="col-lg-9">
+            @foreach (ProjectItem project in ProjectItems)
+            {
+                <ProjectItemBox ProjectItem="project" RefreshProjectItemList="GetProjects" />
+            }
+        </div>
     }
-    </div>
+    else
+    {
+        <div class="col-lg-9">
+            <p>No Projects Found.</p>
+        </div>
+    }
 </div>
 
 @code {
